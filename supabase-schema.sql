@@ -4,6 +4,18 @@ create table if not exists public.jee_tracker_state (
   state jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now()
 );
+-- Limit stored snapshots and reject unexpected top-level JSON values.
+do $$ begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'jee_tracker_state_state_size_check'
+      and conrelid = 'public.jee_tracker_state'::regclass
+  ) then
+    alter table public.jee_tracker_state
+      add constraint jee_tracker_state_state_size_check
+      check (jsonb_typeof(state) = 'object' and octet_length(state::text) <= 4194304) not valid;
+  end if;
+end $$;
 alter table public.jee_tracker_state enable row level security;
 revoke all on table public.jee_tracker_state from anon, authenticated;
 grant select, insert, update on table public.jee_tracker_state to authenticated;
