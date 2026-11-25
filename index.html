@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>JEE Physics Practice Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#dashboard"><span class="brand-mark">∑</span><span>JEE Physics <small>practice tracker</small></span></a>
+    <div class="top-actions"><span id="backupHint" class="backup-hint"></span><button id="themeBtn" class="icon-btn" title="Toggle dark mode">◐</button></div>
+  </header>
+  <nav class="tabs" aria-label="Main navigation">
+    <button data-view="dashboard" class="tab active">Dashboard</button><button data-view="year" class="tab">By Year</button><button data-view="type" class="tab">By Type</button><button data-view="sessions" class="tab">All Sessions</button><button data-view="saved" class="tab">Saved Questions</button>
+  </nav>
+  <main id="app" class="wrap"></main>
+  <dialog id="sessionDialog" class="session-dialog practice-dialog">
+    <div class="session-head practice-head"><button id="closeSession" class="icon-btn" title="Save and close">←</button><div class="practice-heading"><div class="eyebrow">PRACTICE SESSION</div><h2 id="sessionTitle"></h2></div><span class="badge practice-badge">PRACTICE</span><a id="sourcePdf" class="source-link" target="_blank" rel="noopener">Source PDF ↗</a><div class="session-clock"><b id="timerText">00:00:00</b><div id="timerState" class="muted">Ready</div></div><div class="timer-controls"><button id="timerStart" class="button primary">Start</button><button id="timerPause" class="button">Pause</button><button id="timerStop" class="button danger">End</button></div></div>
+    <div id="questionStrip" class="question-strip" aria-label="Question navigation"></div>
+    <div class="practice-layout"><main class="practice-main"><div class="practice-scroll"><article class="prompt-card"><div class="prompt-meta"><span id="questionNumberBadge" class="question-number-badge">1</span><div><div id="questionSourceLabel" class="source-label"></div><div id="questionStatusLabel" class="muted small"></div><div id="questionTime" class="question-time"></div></div><button id="starQuestion" class="icon-btn star-button" title="Star this question">☆</button><button id="reviewQuestion" class="icon-btn" title="Mark for review">⚑</button></div><div id="questionPrompt" class="question-prompt"></div><img id="questionImage" class="question-image" alt="Scanned question image"><div id="emptyQuestion" class="empty-question" hidden>This question has no text yet. Add the question and correct answer key below.</div></article>
+      <section class="answer-card"><div class="answer-symbol">123</div><h3>Enter Answer</h3><div id="mcqOptions" class="mcq-options" hidden></div><input id="answerInput" class="answer-input" type="text" autocomplete="off" placeholder="Type your answer here"><div class="answer-feedback" id="answerFeedback" aria-live="polite"></div><div class="answer-actions"><button id="checkAnswer" class="button primary">Check answer</button><button id="showSolution" class="button">View solution</button><button id="skipQuestion" class="button">Skip</button></div><div id="solutionPanel" class="solution-panel" hidden><div id="solutionText"></div><a id="videoSolutionLink" target="_blank" rel="noopener" hidden>Watch video solution</a></div></section>
+      <details id="questionEditor" class="question-editor"><summary>Add or edit question and answer key</summary><div class="editor-grid"><label class="editor-wide">Question text<textarea id="questionTextEdit" rows="4" placeholder="Type or paste the question here"></textarea></label><label>Correct answer<input id="correctAnswerEdit" type="text" placeholder="Answer or alternatives separated by |"></label><label>Question type<select id="questionTypeEdit"><option value="mcq-single">MCQ · single answer</option><option value="mcq-multiple">MCQ · multiple answers</option><option value="integer">Integer</option><option value="numeric">Numerical</option><option value="text">Text</option></select></label><label id="toleranceField">Numeric tolerance<input id="toleranceEdit" type="number" min="0" step="any" value="0.01"></label><div id="optionFields" class="option-fields editor-wide"><label>Option A<input id="optionAEdit" type="text"></label><label>Option B<input id="optionBEdit" type="text"></label><label>Option C<input id="optionCEdit" type="text"></label><label>Option D<input id="optionDEdit" type="text"></label></div><label class="editor-wide">Solution or explanation<textarea id="solutionEdit" rows="3" placeholder="Optional working or explanation"></textarea></label></div><button id="saveQuestionContent" class="button primary">Save question</button></details>
+      <div class="question-notes"><label for="questionNote">Your note</label><textarea id="questionNote" rows="2" placeholder="Add a reminder or working note"></textarea></div></div>
+      <footer class="practice-footer"><label class="show-answer-toggle"><input id="revealAnswerToggle" type="checkbox"> Show answer</label><div class="footer-actions"><button id="clearResponse" class="button">Clear response</button><button id="prevQ" class="button">← Previous</button><button id="nextQ" class="button primary">Next →</button><button id="finishSession" class="button danger">Save and end session</button></div></footer></main>
+      <aside class="tracker-pane question-map-pane"><div class="question-toolbar"><div><strong>Question map</strong><div id="sessionProgress" class="muted small"></div></div></div><div class="map-legend"><span>○ To do</span><span>● Correct</span><span>● Wrong</span><span>● Review</span></div><div id="questionGrid" class="question-grid"></div><p class="keyboard-help">Keys: ← → previous / next · Enter check answer · S mark for review · Space pause / resume</p></aside>
+    </div>
+  </dialog>
+  <input id="importFile" type="file" accept="application/json,.json" hidden>
+  <script src="js/data.js"></script><script src="js/quotes.js"></script><script src="js/question-bank.js"></script><script src="js/storage.js"></script><script src="js/charts.js"></script><script src="js/app.js"></script>
+</body></html>
