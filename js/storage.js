@@ -47,7 +47,7 @@ window.Store = (() => {
     return {
       prompt: text(value.prompt), answer: text(value.answer, 5000), type, mode: type,
       tolerance: finite(value.tolerance, 0, 1e12), options,
-      solution: text(value.solution), image: safeImage(value.image),
+      solution: text(value.solution), ...(typeof value.chapter === 'string' ? { chapter: text(value.chapter, 80) } : {}), image: safeImage(value.image),
       solutionUrl: safeSolutionUrl(value.solutionUrl),
       ...(Number.isSafeInteger(Number(value.sourcePage)) && Number(value.sourcePage) > 0 ? { sourcePage: Number(value.sourcePage) } : {})
     };
@@ -132,7 +132,16 @@ window.Store = (() => {
       }
     }
     if (object(value.records)) {
-      for (const id of challengeIds) if (object(value.records[id])) out.records[id] = {};
+      for (const id of challengeIds) {
+        if (!object(value.records[id])) continue;
+        out.records[id] = map();
+        for (const [rawQ, raw] of Object.entries(value.records[id]).slice(0, MAX_QUESTIONS)) {
+          const q = Number(rawQ);
+          if (!Number.isSafeInteger(q) || q < 1 || q > MAX_QUESTIONS || !object(raw) || !['correct', 'wrong'].includes(raw.status)) continue;
+          const response = Array.isArray(raw.response) ? raw.response.slice(0, 4).filter(x => ['A','B','C','D'].includes(x)) : text(raw.response, 5000);
+          out.records[id][String(q)] = { status: raw.status, response, checkedAt: finite(raw.checkedAt, 0, 8640000000000000) };
+        }
+      }
     }
     if (JSON.stringify(out).length * 2 > MAX_STATE_BYTES) throw new Error('Tracker backup is too large (maximum 4 MB).');
     return out;
