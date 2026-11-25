@@ -2,7 +2,9 @@
 
 Review date: 25 November 2026
 
-## Findings and fixes prepared
+Deployment: hardened app published in commit `ab9e09a`. The database constraint was applied successfully and verified in Supabase.
+
+## Findings and fixes applied
 
 - **Imported backup data could contain unsafe values.** Imports now stop at 4 MB and pass through a strict normalizer. It allows only known challenge IDs, caps question counts and text sizes, validates response/status values, and accepts only local raster question images and HTTPS YouTube links.
 - **Unbounded question totals could exhaust the browser.** User-entered totals and imported values are capped at 5,000 per challenge. Malformed question state is discarded or normalized before rendering and syncing.
@@ -17,7 +19,7 @@ Review date: 25 November 2026
 
 The SQL grants access only to authenticated users for `SELECT`, `INSERT`, and `UPDATE`; it revokes table access from `anon`. Row Level Security is enabled, and each policy compares `user_id` with `auth.uid()`. There is no delete grant or public policy. The browser configuration contains the public Supabase publishable key; it must never contain a service-role or secret key.
 
-The table and RLS policies were reported as applied and verified earlier. **The new size constraint has not yet been applied to the live Supabase database.** Run the updated `supabase-schema.sql` in the Supabase SQL Editor to add it. The script re-creates the same per-user policies and adds the constraint idempotently.
+The table and RLS policies were reported as applied and verified earlier. The size constraint is now present in the live database. It is marked `NOT VALID`: PostgreSQL enforces it for new and updated rows while leaving any older rows unscanned. `convalidated = false` was confirmed. The schema file keeps the same idempotent migration for future setup.
 
 ## Remaining limits
 
@@ -25,4 +27,4 @@ The table and RLS policies were reported as applied and verified earlier. **The 
 - The site stores local progress in the browser and cloud snapshots as ordinary JSON in Supabase. Cloud transfers use HTTPS; there is no end-to-end encryption. Anyone who can use an already signed-in browser profile may see that profile’s data.
 - Supabase Auth stores account email addresses. Use a unique password, sign out on shared devices, and do not share passwords or login codes.
 - The Supabase project’s email verification, password recovery, rate limits, backups, and account protections remain controlled by its dashboard settings.
-- The size constraint is prepared but remains pending until the SQL is applied. The hardened app files are also prepared locally and have not been published as part of this review.
+- The size constraint is installed but existing rows have not been validated against it. Supabase dashboard displayed an active technical-issue banner during deployment; its email flow also returned `email rate limit exceeded` in the site dialog. Email sign-in should be checked again after Supabase resolves the service issue or the project email quota resets.
