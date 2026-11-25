@@ -1,0 +1,20 @@
+-- One private tracker snapshot per authenticated Supabase user.
+create table if not exists public.jee_tracker_state (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  state jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+alter table public.jee_tracker_state enable row level security;
+revoke all on table public.jee_tracker_state from anon, authenticated;
+grant select, insert, update on table public.jee_tracker_state to authenticated;
+drop policy if exists "Users read only their tracker" on public.jee_tracker_state;
+drop policy if exists "Users create only their tracker" on public.jee_tracker_state;
+drop policy if exists "Users update only their tracker" on public.jee_tracker_state;
+create policy "Users read only their tracker" on public.jee_tracker_state for select to authenticated using ((select auth.uid()) = user_id);
+create policy "Users create only their tracker" on public.jee_tracker_state for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "Users update only their tracker" on public.jee_tracker_state for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+do $$ begin
+  if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='jee_tracker_state') then
+    alter publication supabase_realtime add table public.jee_tracker_state;
+  end if;
+end $$;
